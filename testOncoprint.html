@@ -1,0 +1,130 @@
+<!-- int this version, we have the function: 
+(1)mini screen draw on the screen
+(2)zoom in and zoom out use pageup and pagedown keyboard function
+(3)mouse left button down draw a point in the 3D window
+(4)mouse middle button down select point and drag point the where the mouse move to
+(5)draw into texture use framebuffer
+(6)draw lines
+(7)a textured cube box in the scene 
+ -->
+<html lang="zh-CN">
+
+<head>
+<title>WebGL</title>
+<meta charset="UTF-8" />
+
+<script type="text/javascript" src="Oak3D_v_0_5.js"></script>
+<script type="text/javascript" src="gl-matrix.js"></script>
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="GLU.js"></script>
+<script type="text/javascript" src="testOncoprint.js"></script>
+
+<!-- shader code -->
+<script id="shader-fs" type="x-shader/x-fragment">
+
+    precision mediump float;
+	varying vec4 vColor;
+
+    void main(void) 
+	{
+        gl_FragColor = vColor;;
+    }
+</script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+	attribute vec4 aVertexColor;
+
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+	varying vec4 vColor;
+    void main(void) {
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+		vColor = aVertexColor;
+    }
+</script>
+
+<!-- shader1 code -->
+<script id="shader-fs1" type="x-shader/x-fragment">
+	precision mediump float;
+	varying vec4 vColor;
+	
+	void main(void) 
+	{
+		gl_FragColor = vColor;
+	}
+</script>
+<script id="shader-vs1" type="x-shader/x-vertex">
+	attribute vec3 aVertexPosition;
+	attribute vec4 aVertexColor;
+	
+	uniform mat4 uMVMatrix;
+	uniform mat4 uPMatrix;
+	varying vec4 vColor;
+	
+	void main(void) {
+		gl_PointSize = 8.0;
+		gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+		vec4 co = vec4(0.0, 0.0 , 1.0, 1.0);
+		if(co.x == 1.0)
+		{ vColor = co;}
+		else
+	{ 
+		vColor = vec4(1.0, 1.0 , 0.0, 1.0);}
+	}
+</script>
+
+<!-- texture shader2 code -->
+<script id="shader-fs2" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying vec2 vTextureCoord;
+    uniform sampler2D uSampler;
+
+    void main(void) 
+	{
+		vec4 color = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+        gl_FragColor = vec4(color.x, color.y, color.z, 1.0);
+    }
+</script>
+
+<script id="shader-vs2" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    attribute vec2 aTextureCoord;
+
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+
+    varying vec2 vTextureCoord;
+	
+    void main(void) 
+	{
+        gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+        vTextureCoord = aTextureCoord;
+    }
+</script>
+</head>
+
+
+<body onLoad="webGLStart();">
+    <canvas id="lesson01-canvas" style="border: none; position: fixed; left: 100px; top: 50px;" width="2402" height="1202"></canvas>
+    <br/>
+	<div>xpos:<a id="xpos"></a> ypos:<a id="ypos"></a></div>
+	<div>posX:<a id="x"></a></div><div> posY:<a id="y"></a></div></br>
+	<div>pos1:<a id="x1"></a></div><div> pos2:<a id="y1"></a></div></br>
+	<div>pos3:<a id="x2"></a></div><div> pos4:<a id="y2"></a></div></br>
+	<div>mX:<a id="m1"></a></div><div> mY:<a id="m2"></a></div><div>mZ:<a id="m3"></a></div></br>
+	<div>Distance:<a id="dis"></a></div></br>
+	<div>IndexNum:<a id="IndNum"></a></div></br>
+	<div>Debug:<a id="debug"></a></div></br>
+	<div>mRIX:<a id="mriX"></a></div><div> mRIY:<a id="mriY"></a></div></br>
+	<div><button type="button" onClick="shrink()">shrink</button><div></br>
+	<div><button type="button" onClick="enlarge()">enlarge</button><div></br>
+	<div><button type="button" onClick="showhide()">show/hide</button><div></br>
+        <div><button type="button" onClick="removespace()">removespace</button><div></br>
+        <div><button type="button" onClick="withspace()">withspace</button><div></br>
+        <div><input type="range" style="width:80px"  min="0.0" max="1.0" value="1.0" step="0.1" onchange="zoom(this.value)"/></div></br>
+</body>
+
+</html>
